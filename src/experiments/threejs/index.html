@@ -1,0 +1,185 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js | Spatial Architecture</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Archivo:wght@400;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <style>
+        :root {
+            --bg: #050505;
+            --text: #ffffff;
+            --dim: #666666;
+            --line: rgba(255, 255, 255, 0.1);
+            --accent: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background-color: var(--bg); color: var(--text);
+            font-family: 'Space Mono', monospace; overflow: hidden;
+        }
+
+        /* === الخلفية الشبكية === */
+        .grid-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(var(--line) 1px, transparent 1px),
+                linear-gradient(90deg, var(--line) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: -1; opacity: 0.3; pointer-events: none;
+        }
+
+        /* === زر العودة === */
+        .back-btn {
+            position: fixed; top: 30px; left: 30px; z-index: 100;
+            text-decoration: none; color: var(--dim); border: 1px solid var(--line);
+            padding: 10px 20px; font-size: 0.8rem; transition: 0.3s;
+            background: rgba(5, 5, 5, 0.8);
+        }
+        .back-btn:hover { color: var(--text); border-color: var(--text); }
+
+        /* === لوحة البيانات (HUD) === */
+        .hud-panel {
+            position: fixed; top: 30px; right: 30px; width: 280px;
+            background: rgba(5, 5, 5, 0.9); border: 1px solid var(--line);
+            padding: 20px; z-index: 100; font-size: 0.75rem;
+        }
+        
+        .hud-row {
+            display: flex; justify-content: space-between; margin-bottom: 10px;
+            border-bottom: 1px solid var(--line); padding-bottom: 5px;
+        }
+        .hud-row:last-child { border: none; margin: 0; }
+        .hud-label { color: var(--dim); }
+        .hud-value { color: var(--accent); }
+
+        /* === تعليمات === */
+        .footer-info {
+            position: fixed; bottom: 30px; left: 30px; 
+            color: var(--dim); font-size: 0.7rem; pointer-events: none;
+        }
+        .instructions {
+            position: fixed; bottom: 30px; right: 30px;
+            color: var(--dim); font-size: 0.7rem; text-align: right; pointer-events: none;
+        }
+
+        canvas { display: block; outline: none; }
+    </style>
+</head>
+<body>
+
+    <div class="grid-bg"></div>
+    
+    <a href="../index.html" class="back-btn">&lt; RETURN_TO_ROOT</a>
+
+    <div class="hud-panel">
+        <div class="hud-row">
+            <span class="hud-label">ENGINE</span>
+            <span class="hud-value">THREE.JS (WEBGL)</span>
+        </div>
+        <div class="hud-row">
+            <span class="hud-label">OBJECT_ID</span>
+            <span class="hud-value">STRUCT_NODE_04</span>
+        </div>
+        <div class="hud-row">
+            <span class="hud-label">VERTICES</span>
+            <span class="hud-value">12,480</span>
+        </div>
+        <div class="hud-row">
+            <span class="hud-label">CAMERA</span>
+            <span class="hud-value">ORBIT_ACTIVE</span>
+        </div>
+    </div>
+
+    <div class="footer-info">
+        RENDER MODE: WIREFRAME<br>
+        ANTIALIAS: ON
+    </div>
+
+    <div class="instructions">
+        [ DRAG ] : ROTATE VIEW<br>
+        [ SCROLL ] : ZOOM I/O
+    </div>
+
+    <script>
+        // Setup Basic Scene
+        const scene = new THREE.Scene();
+        // Fog blends floor into background
+        scene.fog = new THREE.FogExp2(0x050505, 0.02);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
+
+        // Orbit Controls
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 1.0;
+
+        // --- The Blueprint Object (Complex Structure) ---
+        const geometry = new THREE.TorusKnotGeometry(10, 3, 100, 16);
+        
+        // 1. Wireframe Material (The lines)
+        const wireMat = new THREE.MeshBasicMaterial({ 
+            color: 0xffffff, 
+            wireframe: true, 
+            transparent: true, 
+            opacity: 0.15 
+        });
+        const wireMesh = new THREE.Mesh(geometry, wireMat);
+        scene.add(wireMesh);
+
+        // 2. Points Material (Vertices dots)
+        const pointsMat = new THREE.PointsMaterial({ 
+            color: 0xffffff, 
+            size: 0.1, 
+            transparent: true, 
+            opacity: 0.6 
+        });
+        const pointsMesh = new THREE.Points(geometry, pointsMat);
+        scene.add(pointsMesh);
+
+        // 3. Inner Core (Black Solid to block lines behind)
+        const solidMat = new THREE.MeshBasicMaterial({ color: 0x050505 });
+        const solidMesh = new THREE.Mesh(geometry, solidMat);
+        solidMesh.scale.set(0.99, 0.99, 0.99); // Slightly smaller
+        scene.add(solidMesh);
+
+        // Grid Floor
+        const gridHelper = new THREE.GridHelper(200, 40, 0x333333, 0x111111);
+        gridHelper.position.y = -15;
+        scene.add(gridHelper);
+
+        camera.position.z = 35;
+        camera.position.y = 10;
+
+        // Resize Handler
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update(); 
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+</body>
+</html>

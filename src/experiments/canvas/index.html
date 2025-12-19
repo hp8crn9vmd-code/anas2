@@ -1,0 +1,236 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Engine | Simulation</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Archivo:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #050505;
+            --text: #ffffff;
+            --dim: #666666;
+            --accent: #ffffff;
+            --line: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: crosshair; }
+        
+        body {
+            background-color: var(--bg); color: var(--text);
+            font-family: 'Space Mono', monospace; overflow: hidden;
+        }
+
+        /* === الخلفية الشبكية === */
+        .grid-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(var(--line) 1px, transparent 1px),
+                linear-gradient(90deg, var(--line) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: -1; opacity: 0.3; pointer-events: none;
+        }
+
+        /* === زر العودة === */
+        .back-btn {
+            position: fixed; top: 30px; left: 30px; z-index: 100;
+            text-decoration: none; color: var(--dim); border: 1px solid var(--line);
+            padding: 10px 20px; font-size: 0.8rem; transition: 0.3s;
+            background: rgba(5, 5, 5, 0.8);
+        }
+        .back-btn:hover { color: var(--text); border-color: var(--text); }
+
+        /* === لوحة البيانات (HUD) === */
+        .hud-panel {
+            position: fixed; top: 30px; right: 30px; width: 250px;
+            background: rgba(5, 5, 5, 0.9); border: 1px solid var(--line);
+            padding: 20px; z-index: 100; font-size: 0.75rem;
+        }
+        
+        .hud-row {
+            display: flex; justify-content: space-between; margin-bottom: 10px;
+            border-bottom: 1px solid var(--line); padding-bottom: 5px;
+        }
+        .hud-row:last-child { border: none; margin: 0; }
+        .hud-label { color: var(--dim); }
+        .hud-value { color: var(--accent); }
+
+        /* === Canvas === */
+        canvas { display: block; }
+
+        /* === Footer Info === */
+        .footer-info {
+            position: fixed; bottom: 30px; left: 30px; 
+            color: var(--dim); font-size: 0.7rem; pointer-events: none;
+        }
+        
+        .instructions {
+            position: fixed; bottom: 30px; right: 30px;
+            color: var(--dim); font-size: 0.7rem; text-align: right; pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="grid-bg"></div>
+    
+    <a href="../index.html" class="back-btn">&lt; RETURN_TO_ROOT</a>
+
+    <div class="hud-panel">
+        <div class="hud-row">
+            <span class="hud-label">ENGINE</span>
+            <span class="hud-value">CANVAS_2D</span>
+        </div>
+        <div class="hud-row">
+            <span class="hud-label">PARTICLES</span>
+            <span class="hud-value" id="p-count">0</span>
+        </div>
+        <div class="hud-row">
+            <span class="hud-label">PHYSICS</span>
+            <span class="hud-value">CPU_BOUND</span>
+        </div>
+        <div class="hud-row">
+            <span class="hud-label">FPS</span>
+            <span class="hud-value" id="fps">60</span>
+        </div>
+    </div>
+
+    <div class="footer-info">
+        SYSTEM: ONLINE<br>
+        RENDER: ACTIVE
+    </div>
+
+    <div class="instructions">
+        INTERACTION: MOUSE HOVER<br>
+        CLICK: DISPERSE
+    </div>
+
+    <canvas id="c"></canvas>
+
+    <script>
+        const c = document.getElementById('c');
+        const ctx = c.getContext('2d');
+        let w, h;
+        let particles = [];
+        const particleCount = 600; // عدد الجزيئات
+        
+        // Mouse Interaction
+        const mouse = { x: null, y: null };
+        window.addEventListener('mousemove', e => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+        
+        // Resize Handler
+        function resize() {
+            w = c.width = window.innerWidth;
+            h = c.height = window.innerHeight;
+            init();
+        }
+        window.addEventListener('resize', resize);
+
+        // Particle Class
+        class Particle {
+            constructor() {
+                this.x = Math.random() * w;
+                this.y = Math.random() * h;
+                this.vx = (Math.random() - 0.5) * 1;
+                this.vy = (Math.random() - 0.5) * 1;
+                this.size = Math.random() * 2 + 1;
+                this.baseColor = 'rgba(255, 255, 255, 0.8)';
+            }
+
+            update() {
+                // Movement
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Wall Bounce
+                if (this.x < 0 || this.x > w) this.vx *= -1;
+                if (this.y < 0 || this.y > h) this.vy *= -1;
+
+                // Mouse Interaction (Repulsion/Magnetic Field)
+                if (mouse.x != null) {
+                    let dx = mouse.x - this.x;
+                    let dy = mouse.y - this.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    const forceRadius = 150;
+
+                    if (distance < forceRadius) {
+                        const forceDirectionX = dx / distance;
+                        const forceDirectionY = dy / distance;
+                        const force = (forceRadius - distance) / forceRadius;
+                        const directionX = forceDirectionX * force * 2; // Strength
+                        const directionY = forceDirectionY * force * 2;
+
+                        this.vx -= directionX;
+                        this.vy -= directionY;
+                    }
+                }
+
+                // Friction (to stop them from accelerating forever)
+                const speedLimit = 4;
+                if (this.vx > speedLimit) this.vx = speedLimit;
+                if (this.vx < -speedLimit) this.vx = -speedLimit;
+                if (this.vy > speedLimit) this.vy = speedLimit;
+                if (this.vy < -speedLimit) this.vy = -speedLimit;
+            }
+
+            draw() {
+                ctx.fillStyle = this.baseColor;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function init() {
+            particles = [];
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+            document.getElementById('p-count').innerText = particleCount;
+        }
+
+        function animate() {
+            // Trail Effect (يعطي شعور بالسرعة)
+            ctx.fillStyle = 'rgba(5, 5, 5, 0.2)'; 
+            ctx.fillRect(0, 0, w, h);
+
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+                
+                // Draw connecting lines if close (Topology Effect)
+                particles.forEach(p2 => {
+                    let dx = p.x - p2.x;
+                    let dy = p.y - p2.y;
+                    let dist = Math.sqrt(dx*dx + dy*dy);
+                    if (dist < 60) {
+                        ctx.strokeStyle = `rgba(255, 255, 255, ${0.1 - dist/600})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                });
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        resize();
+        animate();
+
+        // Simulated FPS Counter
+        setInterval(() => {
+            document.getElementById('fps').innerText = Math.floor(58 + Math.random() * 3);
+        }, 500);
+
+    </script>
+</body>
+</html>

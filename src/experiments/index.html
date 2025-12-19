@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فهرس التجارب - Anas2 Lab</title>
+    <link rel="stylesheet" href="../../public/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .header h1 {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .experiments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        
+        .experiment-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .experiment-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .experiment-icon {
+            font-size: 2.5rem;
+            color: white;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+        }
+        
+        .experiment-title {
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .experiment-description {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .experiment-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .experiment-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            padding-right: 25px;
+            padding-left: 25px;
+        }
+        
+        .tech-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 15px 0;
+        }
+        
+        .tech-tag {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 20px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            text-align: center;
+            color: white;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 768px) {
+            .experiments-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../../public/index.html" class="back-link">
+            <i class="fas fa-arrow-right"></i>
+            العودة إلى الرئيسية
+        </a>
+        
+        <div class="header">
+            <h1><i class="fas fa-flask"></i> فهرس التجارب</h1>
+            <p>استكشف جميع تجارب الرسوميات التفاعلية في مختبر Anas2</p>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-number" id="total-experiments">5</span>
+                <span class="stat-label">تجربة</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">3D/2D</span>
+                <span class="stat-label">أنواع الرسوميات</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">100%</span>
+                <span class="stat-label">تفاعلية</span>
+            </div>
+        </div>
+        
+        <div class="experiments-grid" id="experiments-container">
+            <!-- التجارب سيتم إضافتها بواسطة JavaScript -->
+        </div>
+        
+        <div class="footer">
+            <p>© 2024 Anas2 Lab - مختبر الرسوميات المتقدم</p>
+            <p>جميع التجارب جاهزة للتشغيل مباشرة في المتصفح</p>
+        </div>
+    </div>
+    
+    <script>
+        // بيانات التجارب
+        const experiments = [
+            {
+                id: 'canvas',
+                name: 'Canvas 2D',
+                description: 'رسم ثنائي الأبعاد باستخدام Canvas API مع رسوم متحركة تفاعلية',
+                icon: 'fas fa-paint-brush',
+                color: '#3b82f6',
+                tags: ['HTML5', 'Canvas API', 'رسم', '2D'],
+                path: 'canvas/index.html'
+            },
+            {
+                id: 'webgl',
+                name: 'WebGL',
+                description: 'رسوميات ثلاثية الأبعاد باستخدام WebGL مباشرة مع تحكم كامل',
+                icon: 'fas fa-cube',
+                color: '#8b5cf6',
+                tags: ['WebGL', 'GLSL', '3D', 'أداء'],
+                path: 'webgl/index.html'
+            },
+            {
+                id: 'threejs',
+                name: 'Three.js',
+                description: 'مكتبة Three.js لإنشاء مشاهد 3D معقدة بسهولة',
+                icon: 'fas fa-cubes',
+                color: '#10b981',
+                tags: ['Three.js', 'مكتبة', '3D', 'WebGL'],
+                path: 'threejs/index.html'
+            },
+            {
+                id: 'pixijs',
+                name: 'PixiJS',
+                description: 'مكتبة PixiJS لرسوم وألعاب 2D عالية الأداء',
+                icon: 'fas fa-gamepad',
+                color: '#f59e0b',
+                tags: ['PixiJS', 'ألعاب', '2D', 'أداء'],
+                path: 'pixijs/index.html'
+            },
+            {
+                id: 'matterjs',
+                name: 'Matter.js',
+                description: 'محرك فيزياء 2D لمحاكاة التصادمات والجاذبية',
+                icon: 'fas fa-atom',
+                color: '#ef4444',
+                tags: ['Matter.js', 'فيزياء', 'محاكاة', 'تفاعل'],
+                path: 'matterjs/index.html'
+            }
+        ];
+        
+        // تحديث عدد التجارب
+        document.getElementById('total-experiments').textContent = experiments.length;
+        
+        // عرض التجارب
+        const container = document.getElementById('experiments-container');
+        
+        experiments.forEach(exp => {
+            const card = document.createElement('div');
+            card.className = 'experiment-card';
+            card.style.borderTop = `4px solid ${exp.color}`;
+            
+            card.innerHTML = `
+                <div class="experiment-icon">
+                    <i class="${exp.icon}"></i>
+                </div>
+                <h3 class="experiment-title">${exp.name}</h3>
+                <p class="experiment-description">${exp.description}</p>
+                
+                <div class="tech-tags">
+                    ${exp.tags.map(tag => `<span class="tech-tag">${tag}</span>`).join('')}
+                </div>
+                
+                <a href="${exp.path}" class="experiment-link">
+                    تشغيل التجربة
+                    <i class="fas fa-play"></i>
+                </a>
+            `;
+            
+            container.appendChild(card);
+        });
+        
+        // إضافة تأثيرات تفاعلية
+        document.querySelectorAll('.experiment-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-10px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+        
+        // تسجيل افتتاح الصفحة
+        console.log('📚 فهرس التجابات محمل بنجاح!');
+    </script>
+</body>
+</html>

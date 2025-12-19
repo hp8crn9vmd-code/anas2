@@ -1,0 +1,222 @@
+{
+  "project": {
+    "name": "Anas2 Lab",
+    "version": "1.0.0",
+    "description": "مختبر متقدم لتجارب الرسوميات والفيزياء على الويب",
+    "author": "Anas2 Team",
+    "license": "MIT",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/username/anas2-lab"
+    },
+    "homepage": "https://username.github.io/anas2-lab",
+    "keywords": [
+      "graphics",
+      "webgl",
+      "threejs",
+      "physics",
+      "interactive",
+      "experiments",
+      "canvas",
+      "pixijs",
+      "matterjs",
+      "babylonjs",
+      "d3js"
+    ]
+  },
+  "features": {
+    "core": [
+      "نظام مراقبة أداء متقدم",
+      "تصميم متجاوب مع دعم الهواتف",
+      "نظام ثيمات (فاتح/غامق)",
+      "Service Worker للتخزين المؤقت",
+      "تطبيق ويب تقدمي (PWA)",
+      "لوحة تحكم تفاعلية"
+    ],
+    "performance": [
+      "مراقبة FPS في الوقت الحقيقي",
+      "تتبع استخدام الذاكرة",
+      "تسجيل زمن تحميل الصفحة",
+      "تحليل أداء التجارب"
+    ],
+    "ui": [
+      "واجهة مستخدم عربية كاملة",
+      "تصميم حديث مع مؤثرات بصرية",
+      "تنقل سهل وسريع",
+      "دعم كامل للشاشات المختلفة"
+    ]
+  },
+  "technologies": {
+    "frontend": [
+      "HTML5",
+      "CSS3 (مع Custom Properties)",
+      "JavaScript (ES6+)",
+      "Vite.js (مُجمِّع)"
+    ],
+    "libraries": [
+      "Three.js (رسوميات 3D)",
+      "PixiJS (رسوميات 2D وألعاب)",
+      "Matter.js (محرك فيزياء)",
+      "Babylon.js (رسوميات 3D متقدمة)",
+      "D3.js (تصور البيانات)",
+      "Chart.js (رسوم بيانية)"
+    ],
+    "tools": [
+      "Git للتحكم في الإصدارات",
+      "Service Workers للتخزين المؤقت",
+      "WebGL و Canvas APIs",
+      "Performance API"
+    ]
+  },
+  "experiments": [
+    {
+      "id": "canvas",
+      "name": "Canvas 2D",
+      "description": "رسم ثنائي الأبعاد باستخدام Canvas API",
+      "status": "active",
+      "tags": [
+        "2D",
+        "رسم",
+        "تفاعلي"
+      ],
+      "files": [
+        "index.html",
+        "script.js",
+        "style.css"
+      ]
+    },
+    {
+      "id": "webgl",
+      "name": "WebGL",
+      "description": "رسوميات ثلاثية الأبعاد باستخدام WebGL مباشرة",
+      "status": "active",
+      "tags": [
+        "3D",
+        "WebGL",
+        "أداء"
+      ],
+      "files": [
+        "index.html",
+        "script.js",
+        "style.css"
+      ]
+    },
+    {
+      "id": "threejs",
+      "name": "Three.js",
+      "description": "مكتبة Three.js لرسوميات 3D عالية المستوى",
+      "status": "active",
+      "tags": [
+        "3D",
+        "مكتبة",
+        "WebGL"
+      ],
+      "files": [
+        "index.html",
+        "script.js",
+        "style.css"
+      ]
+    },
+    {
+      "id": "pixijs",
+      "name": "PixiJS",
+      "description": "مكتبة لرسوم وألعاب 2D عالية الأداء",
+      "status": "active",
+      "tags": [
+        "2D",
+        "ألعاب",
+        "أداء"
+      ],
+      "files": [
+        "index.html",
+        "script.js",
+        "style.css"
+      ]
+    },
+    {
+      "id": "matterjs",
+      "name": "Matter.js",
+      "description": "محرك فيزياء 2D للمحاكاة التفاعلية",
+      "status": "active",
+      "tags": [
+        "فيزياء",
+        "محاكاة",
+        "تفاعل"
+      ],
+      "files": [
+        "index.html",
+        "script.js",
+        "style.css"
+      ]
+    },
+    {
+      "id": "babylonjs",
+      "name": "Babylon.js",
+      "description": "مكتبة 3D متقدمة مع أدوات متكاملة",
+      "status": "planned",
+      "tags": [
+        "3D",
+        "متقدم",
+        "أدوات"
+      ],
+      "files": []
+    },
+    {
+      "id": "d3js",
+      "name": "D3.js",
+      "description": "تصور البيانات والرسوم البيانية التفاعلية",
+      "status": "planned",
+      "tags": [
+        "بيانات",
+        "رسوم بيانية",
+        "تصور"
+      ],
+      "files": []
+    }
+  ],
+  "structure": {
+    "public": {
+      "css": "أنماط التطبيق الرئيسية",
+      "js": "سكريبتات التطبيق الرئيسية",
+      "assets": "الموارد الثابتة (صور، أيقونات، خطوط)"
+    },
+    "src": {
+      "experiments": "جميع التجارب التفاعلية",
+      "components": "مكونات قابلة لإعادة الاستخدام",
+      "utils": "أدوات ودوال مساعدة"
+    },
+    "config": "ملفات إعدادات البناء",
+    "docs": "الوثائق والشروحات"
+  },
+  "scripts": {
+    "dev": "تشغيل خادم التطوير",
+    "build": "بناء المشروع للإنتاج",
+    "preview": "معاينة المشروع المبني",
+    "deploy": "نشر المشروع على GitHub Pages"
+  },
+  "compatibility": {
+    "browsers": [
+      "Chrome 90+",
+      "Firefox 88+",
+      "Safari 14+",
+      "Edge 90+"
+    ],
+    "devices": [
+      "أجهزة الكمبيوتر",
+      "الأجهزة اللوحية",
+      "الهواتف الذكية"
+    ],
+    "requirements": [
+      "تفعيل JavaScript",
+      "دعم WebGL للبعض التجارب",
+      "اتصال إنترنت (للتحميل الأولي)"
+    ]
+  },
+  "metadata": {
+    "created": "2024-01-01",
+    "last_updated": "2024-01-01",
+    "language": "ar",
+    "rtl": true,
+    "default_theme": "light"
+  }
+}

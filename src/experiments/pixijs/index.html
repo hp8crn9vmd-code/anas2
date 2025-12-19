@@ -1,0 +1,102 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixi.js | Stress Test</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.2.4/pixi.min.js"></script>
+
+    <style>
+        :root { --bg: #050505; --text: #ffffff; --dim: #666; --line: rgba(255, 255, 255, 0.1); }
+        body { background: var(--bg); color: var(--text); font-family: 'Space Mono', monospace; margin: 0; overflow: hidden; }
+        
+        .grid-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+            background-size: 40px 40px; z-index: -1; opacity: 0.3; pointer-events: none;
+        }
+
+        .back-btn {
+            position: fixed; top: 30px; left: 30px; z-index: 100; color: var(--dim); border: 1px solid var(--line);
+            padding: 10px 20px; text-decoration: none; font-size: 0.8rem; background: rgba(5,5,5,0.8);
+        }
+        .back-btn:hover { color: var(--text); border-color: var(--text); }
+
+        .hud-panel {
+            position: fixed; top: 30px; right: 30px; width: 250px; background: rgba(5,5,5,0.9);
+            border: 1px solid var(--line); padding: 20px; font-size: 0.75rem;
+        }
+        .hud-row { display: flex; justify-content: space-between; margin-bottom: 5px; border-bottom: 1px solid var(--line); padding-bottom: 5px; }
+        .hud-label { color: var(--dim); } .hud-val { color: #00f260; }
+
+        .instructions { position: fixed; bottom: 30px; right: 30px; color: var(--dim); font-size: 0.7rem; text-align: right; }
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+    <a href="../index.html" class="back-btn">&lt; RETURN_TO_ROOT</a>
+
+    <div class="hud-panel">
+        <div class="hud-row"><span class="hud-label">ENGINE</span><span class="hud-val">PIXI.JS v7</span></div>
+        <div class="hud-row"><span class="hud-label">SPRITES</span><span class="hud-val" id="count">2000</span></div>
+        <div class="hud-row"><span class="hud-label">FPS</span><span class="hud-val" id="fps">60</span></div>
+    </div>
+
+    <div class="instructions">[ CLICK ] : ADD 1000 SPRITES<br>RENDER MODE: BATCHED</div>
+
+    <script>
+        const app = new PIXI.Application({ width: innerWidth, height: innerHeight, backgroundAlpha: 0, antialias: true });
+        document.body.appendChild(app.view);
+
+        // Texture Generation (Data Points)
+        const g = new PIXI.Graphics();
+        g.beginFill(0xffffff); g.drawRect(0,0,4,4); g.endFill();
+        const tex = app.renderer.generateTexture(g);
+
+        const container = new PIXI.ParticleContainer(10000, { scale: true, position: true, rotation: true, uvs: true, alpha: true });
+        app.stage.addChild(container);
+
+        const maggots = [];
+        let count = 2000;
+
+        function createMaggots(amount) {
+            for (let i = 0; i < amount; i++) {
+                const dude = new PIXI.Sprite(tex);
+                dude.anchor.set(0.5);
+                dude.tint = Math.random() * 0xFFFFFF; // Data colors
+                dude.x = Math.random() * app.screen.width;
+                dude.y = Math.random() * app.screen.height;
+                dude.direction = Math.random() * Math.PI * 2;
+                dude.turnSpeed = Math.random() - 0.8;
+                dude.speed = 2 + Math.random() * 2;
+                maggots.push(dude);
+                container.addChild(dude);
+            }
+            document.getElementById('count').innerText = maggots.length;
+        }
+        createMaggots(count);
+
+        app.ticker.add(() => {
+            for (let i = 0; i < maggots.length; i++) {
+                const dude = maggots[i];
+                dude.direction += dude.turnSpeed * 0.01;
+                dude.x += Math.sin(dude.direction) * dude.speed;
+                dude.y += Math.cos(dude.direction) * dude.speed;
+                dude.rotation = -dude.direction - Math.PI / 2;
+
+                if (dude.x < 0) dude.x += app.screen.width;
+                if (dude.x > app.screen.width) dude.x -= app.screen.width;
+                if (dude.y < 0) dude.y += app.screen.height;
+                if (dude.y > app.screen.height) dude.y -= app.screen.height;
+            }
+            // Mock FPS update
+            if(Math.random() > 0.9) document.getElementById('fps').innerText = Math.round(app.ticker.FPS);
+        });
+
+        window.addEventListener('click', () => createMaggots(1000));
+        window.addEventListener('resize', () => app.renderer.resize(innerWidth, innerHeight));
+    </script>
+</body>
+</html>

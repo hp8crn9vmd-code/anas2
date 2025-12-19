@@ -1,0 +1,220 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matter.js | Rigid Body Lab</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Archivo:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+
+    <style>
+        :root {
+            --bg: #050505;
+            --text: #ffffff;
+            --dim: #666666;
+            --line: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background-color: var(--bg); color: var(--text);
+            font-family: 'Space Mono', monospace; overflow: hidden;
+        }
+
+        /* === الخلفية الشبكية === */
+        .grid-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(var(--line) 1px, transparent 1px),
+                linear-gradient(90deg, var(--line) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: -1; opacity: 0.3; pointer-events: none;
+        }
+
+        /* === زر العودة === */
+        .back-btn {
+            position: fixed; top: 30px; left: 30px; z-index: 100;
+            text-decoration: none; color: var(--dim); border: 1px solid var(--line);
+            padding: 10px 20px; font-size: 0.8rem; transition: 0.3s;
+            background: rgba(5, 5, 5, 0.8);
+        }
+        .back-btn:hover { color: var(--text); border-color: var(--text); }
+
+        /* === لوحة البيانات (HUD) === */
+        .hud-panel {
+            position: fixed; top: 30px; right: 30px; width: 250px;
+            background: rgba(5, 5, 5, 0.9); border: 1px solid var(--line);
+            padding: 20px; z-index: 100; font-size: 0.75rem;
+        }
+        
+        .hud-row {
+            display: flex; justify-content: space-between; margin-bottom: 10px;
+            border-bottom: 1px solid var(--line); padding-bottom: 5px;
+        }
+        .hud-row:last-child { border: none; margin: 0; }
+        .hud-label { color: var(--dim); }
+        .hud-value { color: #ffffff; }
+
+        /* === تعليمات === */
+        .instructions {
+            position: fixed; bottom: 30px; right: 30px;
+            color: var(--dim); font-size: 0.7rem; text-align: right; pointer-events: none;
+        }
+        
+        .footer-info {
+            position: fixed; bottom: 30px; left: 30px; 
+            color: var(--dim); font-size: 0.7rem; pointer-events: none;
+        }
+
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="grid-bg"></div>
+    
+    <a href="../index.html" class="back-btn">&lt; RETURN_TO_ROOT</a>
+
+    <div class="hud-panel">
+        <div class="hud-row">
+            <span class="hud-label">ENGINE</span>
+            <span class="hud-value">MATTER.JS</span>
+        </div>
+        <div class="hud-row">
+            <span class="hud-label">BODIES</span>
+            <span class="hud-value" id="body-count">50</span>
+        </div>
+        <div class="hud-row">
+            <span class="hud-label">GRAVITY</span>
+            <span class="hud-value">1.0 G</span>
+        </div>
+        <div class="hud-row">
+            <span class="hud-label">SIMULATION</span>
+            <span class="hud-value">ACTIVE</span>
+        </div>
+    </div>
+
+    <div class="footer-info">
+        COLLISION: DETECTED<br>
+        FRICTION: 0.5
+    </div>
+
+    <div class="instructions">
+        [ DRAG ] : MOVE OBJECTS<br>
+        [ R ] : RESET SCENE
+    </div>
+
+    <script>
+        const { Engine, Render, Runner, Bodies, Composite, Mouse, MouseConstraint, Composites } = Matter;
+
+        // 1. Setup Engine
+        const engine = Engine.create();
+        const world = engine.world;
+
+        // 2. Setup Renderer (Technical Look)
+        const render = Render.create({
+            element: document.body,
+            engine: engine,
+            options: {
+                width: window.innerWidth,
+                height: window.innerHeight,
+                background: 'transparent', // Transparent to see the grid background
+                wireframes: false, // We use false to apply custom styles
+                showAngleIndicator: true // Shows orientation lines (Engineer feel)
+            }
+        });
+
+        // 3. Create Objects (The "Parts")
+        // Technical Style: Dark fill, White stroke
+        const techStyle = { 
+            fillStyle: '#0a0a0a', 
+            strokeStyle: '#ffffff', 
+            lineWidth: 1 
+        };
+
+        // Add Walls
+        const wallOptions = { 
+            isStatic: true, 
+            render: { fillStyle: '#111', strokeStyle: '#333', lineWidth: 1 } 
+        };
+        
+        let ground, leftWall, rightWall;
+
+        function createWalls() {
+            ground = Bodies.rectangle(window.innerWidth/2, window.innerHeight + 30, window.innerWidth, 60, wallOptions);
+            leftWall = Bodies.rectangle(-30, window.innerHeight/2, 60, window.innerHeight, wallOptions);
+            rightWall = Bodies.rectangle(window.innerWidth + 30, window.innerHeight/2, 60, window.innerHeight, wallOptions);
+            Composite.add(world, [ground, leftWall, rightWall]);
+        }
+        createWalls();
+
+        // Add Stack of Boxes (Simulating Cargo/Parts)
+        const stack = Composites.stack(window.innerWidth/2 - 100, 100, 5, 5, 0, 0, function(x, y) {
+            return Bodies.rectangle(x, y, 40, 40, {
+                render: techStyle,
+                restitution: 0.5 // Bounciness
+            });
+        });
+        Composite.add(world, stack);
+
+        // Add some random Polygons
+        for (let i = 0; i < 10; i++) {
+            const poly = Bodies.polygon(
+                Math.random() * window.innerWidth, 
+                Math.random() * 200, 
+                Math.floor(Math.random() * 5) + 3, // Sides
+                30, 
+                { render: techStyle }
+            );
+            Composite.add(world, poly);
+        }
+
+        // 4. Add Mouse Control
+        const mouse = Mouse.create(render.canvas);
+        const mouseConstraint = MouseConstraint.create(engine, {
+            mouse: mouse,
+            constraint: {
+                stiffness: 0.2,
+                render: { visible: false }
+            }
+        });
+        Composite.add(world, mouseConstraint);
+
+        // Keep the mouse in sync with rendering
+        render.mouse = mouse;
+
+        // 5. Run
+        Render.run(render);
+        const runner = Runner.create();
+        Runner.run(runner, engine);
+
+        // 6. Handle Resize
+        window.addEventListener('resize', () => {
+            render.canvas.width = window.innerWidth;
+            render.canvas.height = window.innerHeight;
+            
+            // Remove old walls and create new ones
+            Composite.remove(world, [ground, leftWall, rightWall]);
+            createWalls();
+        });
+
+        // Reset functionality
+        window.addEventListener('keydown', (e) => {
+            if (e.key.toLowerCase() === 'r') {
+                Composite.clear(world, false, true); // Keep static bodies
+                createWalls();
+                Composite.add(world, stack); // Re-add stack
+            }
+        });
+
+        // Update HUD Count
+        setInterval(() => {
+            document.getElementById('body-count').innerText = Composite.allBodies(world).length - 3; // Subtract walls
+        }, 1000);
+
+    </script>
+</body>
+</html>
